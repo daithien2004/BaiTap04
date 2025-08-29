@@ -2,6 +2,8 @@ const {
   createUserService,
   loginService,
   getUserService,
+  requestPasswordResetService,
+  resetPasswordService,
 } = require('../services/userService');
 
 const createUser = async (req, res) => {
@@ -32,3 +34,19 @@ module.exports = {
   getUser,
   getAccount,
 };
+
+// Forgot/Reset Password Controllers
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  const data = await requestPasswordResetService(email);
+  return res.status(200).json(data);
+};
+
+const resetPassword = async (req, res) => {
+  const { token, password } = req.body;
+  const data = await resetPasswordService(token, password);
+  return res.status(200).json(data);
+};
+
+module.exports.forgotPassword = forgotPassword;
+module.exports.resetPassword = resetPassword;

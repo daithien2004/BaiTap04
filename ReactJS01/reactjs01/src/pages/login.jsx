@@ -98,6 +98,9 @@ const LoginPage = () => {
           <div style={{ textAlign: 'center' }}>
             Chưa có tài khoản? <Link to="/register">Đăng ký tại đây</Link>
           </div>
+          <div style={{ textAlign: 'center', marginTop: 8 }}>
+            Quên mật khẩu? <Link to="/forgot-password">Khôi phục</Link>
+          </div>
         </fieldset>
       </Col>
     </Row>

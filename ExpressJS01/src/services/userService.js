@@ -2,6 +2,7 @@ require('dotenv').config();
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const saltRounds = 10;
 
@@ -88,3 +89,53 @@ module.exports = {
   loginService,
   getUserService,
 };
+
+// Forgot/Reset Password Services
+const requestPasswordResetService = async (email) => {
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return { EC: 1, EM: 'Email không tồn tại' };
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = expires;
+    await user.save();
+
+    // In production, send token via email. Here we return it for simplicity.
+    return { EC: 0, EM: 'OK', token, expiresAt: expires };
+  } catch (error) {
+    console.log(error);
+    return { EC: -1, EM: 'Server error' };
+  }
+};
+
+const resetPasswordService = async (token, newPassword) => {
+  try {
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return { EC: 1, EM: 'Token không hợp lệ hoặc đã hết hạn' };
+    }
+
+    const hashPassword = await bcrypt.hash(newPassword, saltRounds);
+    user.password = hashPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    return { EC: 0, EM: 'Đổi mật khẩu thành công' };
+  } catch (error) {
+    console.log(error);
+    return { EC: -1, EM: 'Server error' };
+  }
+};
+
+module.exports.requestPasswordResetService = requestPasswordResetService;
+module.exports.resetPasswordService = resetPasswordService;
