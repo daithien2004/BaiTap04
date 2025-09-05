@@ -1,10 +1,10 @@
-const {
+import {
   createUserService,
   loginService,
   getUserService,
   requestPasswordResetService,
   resetPasswordService,
-} = require('../services/userService');
+} from '../services/userService.js';
 
 const createUser = async (req, res) => {
   const { name, email, password } = req.body;
@@ -28,12 +28,7 @@ const getAccount = async (req, res) => {
   return res.status(200).json(req.user);
 };
 
-module.exports = {
-  createUser,
-  handleLogin,
-  getUser,
-  getAccount,
-};
+export { createUser, handleLogin, getUser, getAccount };
 
 // Forgot/Reset Password Controllers
 const forgotPassword = async (req, res) => {
@@ -48,5 +43,4 @@ const resetPassword = async (req, res) => {
   return res.status(200).json(data);
 };
 
-module.exports.forgotPassword = forgotPassword;
-module.exports.resetPassword = resetPassword;
+export { forgotPassword, resetPassword };

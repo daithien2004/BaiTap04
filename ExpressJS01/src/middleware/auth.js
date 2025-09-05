@@ -1,5 +1,6 @@
-require('dotenv').config();
-const jwt = require('jsonwebtoken');
+import dotenv from 'dotenv';
+dotenv.config();
+import jwt from 'jsonwebtoken';
 
 const auth = (req, res, next) => {
   const white_lists = ['/', '/register', '/login', '/forgot-password', '/reset-password'];
@@ -30,4 +31,4 @@ const auth = (req, res, next) => {
     }
   }
 };
-module.exports = auth;
+export default auth;

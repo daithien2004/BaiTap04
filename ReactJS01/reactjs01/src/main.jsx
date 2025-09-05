@@ -10,6 +10,8 @@ import LoginPage from './pages/login.jsx';
 import { AuthWrapper } from './components/context/auth.context.jsx';
 import ForgotPasswordPage from './pages/forgot.jsx';
 import ResetPasswordPage from './pages/reset.jsx';
+import AddProductPage from './pages/add-product.jsx';
+import AddCategoryPage from './pages/add-category.jsx';
 
 const router = createBrowserRouter([
   {
@@ -23,6 +25,14 @@ const router = createBrowserRouter([
       {
         path: 'user',
         element: <UserPage />,
+      },
+      {
+        path: 'add-product',
+        element: <AddProductPage />,
+      },
+      {
+        path: 'add-category',
+        element: <AddCategoryPage />,
       },
     ],
   },

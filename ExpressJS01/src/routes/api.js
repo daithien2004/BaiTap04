@@ -1,14 +1,15 @@
-const express = require('express');
-const {
+import express from 'express';
+import {
   createUser,
   handleLogin,
   getUser,
   getAccount,
   forgotPassword,
   resetPassword,
-} = require('../controllers/userController');
-const auth = require('../middleware/auth');
-const delay = require('../middleware/delay');
+} from '../controllers/userController.js';
+import auth from '../middleware/auth.js';
+import delay from '../middleware/delay.js';
+import { getCategories, getProducts, createCategory, createProduct } from '../controllers/productController.js';
 
 const routerAPI = express.Router();
 
@@ -23,5 +24,11 @@ routerAPI.post('/reset-password', resetPassword);
 routerAPI.get('/user', auth, getUser);
 routerAPI.get('/account', auth, delay, getAccount);
 
-module.exports = routerAPI;
+// category & products
+routerAPI.get('/categories', getCategories);
+routerAPI.get('/products', getProducts);
+routerAPI.post('/categories', createCategory);
+routerAPI.post('/products', createProduct);
+
+export default routerAPI;
 

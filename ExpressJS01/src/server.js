@@ -1,10 +1,11 @@
-require('dotenv').config({ path: '../.env' });
-const express = require('express');
-const configViewEngine = require('./config/viewEngine');
-const apiRoutes = require('./routes/api');
-const connection = require('./config/database');
-const { getHomepage } = require('./controllers/homeController');
-const cors = require('cors');
+import dotenv from 'dotenv';
+dotenv.config({ path: '../.env' });
+import express from 'express';
+import configViewEngine from './config/viewEngine.js';
+import apiRoutes from './routes/api.js';
+import connection from './config/database.js';
+import { getHomepage } from './controllers/homeController.js';
+import cors from 'cors';
 
 const app = express();
 const port = process.env.PORT || 8888;

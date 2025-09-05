@@ -25,6 +25,14 @@ const Header = () => {
             key: 'user',
             icon: <UsergroupAddOutlined />,
           },
+          {
+            label: <Link to="/add-category">Thêm danh mục</Link>,
+            key: 'add-category',
+          },
+          {
+            label: <Link to="/add-product">Thêm sản phẩm</Link>,
+            key: 'add-product',
+          },
         ]
       : []),
 

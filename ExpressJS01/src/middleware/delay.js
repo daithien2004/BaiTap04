@@ -8,4 +8,4 @@ const delay = (req, res, next) => {
   }, 3000);
 };
 
-module.exports = delay;
+export default delay;

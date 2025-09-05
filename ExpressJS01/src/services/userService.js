@@ -1,8 +1,9 @@
-require('dotenv').config();
-const User = require('../models/user');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
+import dotenv from 'dotenv';
+dotenv.config();
+import User from '../models/user.js';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 
 const saltRounds = 10;
 
@@ -84,11 +85,7 @@ const getUserService = async () => {
   }
 };
 
-module.exports = {
-  createUserService,
-  loginService,
-  getUserService,
-};
+export { createUserService, loginService, getUserService };
 
 // Forgot/Reset Password Services
 const requestPasswordResetService = async (email) => {
@@ -137,5 +134,4 @@ const resetPasswordService = async (token, newPassword) => {
   }
 };
 
-module.exports.requestPasswordResetService = requestPasswordResetService;
-module.exports.resetPasswordService = resetPasswordService;
+export { requestPasswordResetService, resetPasswordService };
