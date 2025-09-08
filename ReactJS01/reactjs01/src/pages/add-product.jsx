@@ -22,6 +22,9 @@ const AddProductPage = () => {
       price: values.price,
       thumbnail: values.thumbnail,
       category: values.category, // slug
+      discount: values.discount || 0,
+      description: values.description,
+      stock: values.stock || 0,
     });
     setLoading(false);
     if (res?.EC === 0) {
@@ -45,6 +48,15 @@ const AddProductPage = () => {
           </Form.Item>
           <Form.Item label="Ảnh (URL)" name="thumbnail">
             <Input />
+          </Form.Item>
+          <Form.Item label="Mô tả" name="description">
+            <Input.TextArea rows={3} />
+          </Form.Item>
+          <Form.Item label="Giảm giá (%)" name="discount">
+            <InputNumber style={{ width: '100%' }} min={0} max={100} />
+          </Form.Item>
+          <Form.Item label="Số lượng tồn kho" name="stock">
+            <InputNumber style={{ width: '100%' }} min={0} />
           </Form.Item>
           <Form.Item
             label="Danh mục"

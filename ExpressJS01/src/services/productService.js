@@ -1,3 +1,4 @@
+import esClient from '../config/elasticsearch.js';
 import Category from '../models/category.js';
 import Product from '../models/product.js';
 import slugifyLib from 'slugify';
@@ -7,23 +8,63 @@ const getCategoriesService = async () => {
   return categories;
 };
 
-const getProductsService = async ({ category, page = 1, limit = 12 }) => {
+const getProductsService = async ({ 
+  category, 
+  page = 1, 
+  limit = 12, 
+  minPrice, 
+  maxPrice, 
+  hasDiscount, 
+  minViews,
+  sortBy = 'createdAt',
+  sortOrder = 'desc'
+}) => {
   const numericLimit = Math.min(Number(limit) || 12, 60);
   const numericPage = Math.max(Number(page) || 1, 1);
   const skip = (numericPage - 1) * numericLimit;
 
   const filter = {};
+  
+  // Lọc theo danh mục
   if (category) {
-    // support category by id or slug
     const cat = await Category.findOne({
       $or: [{ name: category }, { slug: category }],
     });
     if (cat) filter.categoryId = cat._id;
-    else filter.categoryId = null; // will yield empty list
+    else filter.categoryId = null;
+  }
+
+  // Lọc theo giá
+  if (minPrice || maxPrice) {
+    filter.price = {};
+    if (minPrice) filter.price.$gte = Number(minPrice);
+    if (maxPrice) filter.price.$lte = Number(maxPrice);
+  }
+
+  // Lọc theo khuyến mãi
+  if (hasDiscount === 'true') {
+    filter.discount = { $gt: 0 };
+  }
+
+  // Lọc theo lượt xem
+  if (minViews) {
+    filter.views = { $gte: Number(minViews) };
+  }
+
+  // Sắp xếp
+  const sortOptions = {};
+  if (sortBy === 'price') {
+    sortOptions.price = sortOrder === 'asc' ? 1 : -1;
+  } else if (sortBy === 'views') {
+    sortOptions.views = sortOrder === 'asc' ? 1 : -1;
+  } else if (sortBy === 'discount') {
+    sortOptions.discount = sortOrder === 'asc' ? 1 : -1;
+  } else {
+    sortOptions.createdAt = sortOrder === 'asc' ? 1 : -1;
   }
 
   const [items, total] = await Promise.all([
-    Product.find(filter).sort({ createdAt: -1 }).skip(skip).limit(numericLimit),
+    Product.find(filter).sort(sortOptions).skip(skip).limit(numericLimit),
     Product.countDocuments(filter),
   ]);
 
@@ -60,6 +101,9 @@ const createProductService = async ({
   price,
   thumbnail,
   category,
+  discount = 0,
+  description,
+  stock = 0,
 }) => {
   if (!name || price == null || !category)
     return { EC: 1, EM: 'Thiếu dữ liệu' };
@@ -84,9 +128,42 @@ const createProductService = async ({
     price,
     thumbnail,
     categoryId: cat._id,
+    discount: Number(discount) || 0,
+    description,
+    stock: Number(stock) || 0,
+    views: 0,
+  });
+
+  // index vào Elasticsearch
+  await esClient.index({
+    index: 'products',
+    id: created._id.toString(),
+    document: {
+      name: created.name,
+      price: created.price,
+      categoryId: created.categoryId,
+    },
   });
 
   return { EC: 0, EM: 'OK', data: created };
 };
 
-export { createCategoryService, createProductService };
+// SEARCH (Elasticsearch)
+const searchProductService = async (query) => {
+  const result = await esClient.search({
+    index: 'products',
+    query: {
+      match: {
+        name: {
+          query,
+          fuzziness: 'AUTO', // bật fuzzy search auto
+        },
+      },
+    },
+  });
+
+  // chỉ trả về danh sách product (nguồn gốc dữ liệu)
+  return result.hits.hits.map((hit) => ({ id: hit._id, ...hit._source }));
+};
+
+export { createCategoryService, createProductService, searchProductService };

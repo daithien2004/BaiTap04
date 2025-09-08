@@ -9,7 +9,13 @@ import {
 } from '../controllers/userController.js';
 import auth from '../middleware/auth.js';
 import delay from '../middleware/delay.js';
-import { getCategories, getProducts, createCategory, createProduct } from '../controllers/productController.js';
+import {
+  getCategories,
+  getProducts,
+  createCategory,
+  createProduct,
+  searchProduct,
+} from '../controllers/productController.js';
 
 const routerAPI = express.Router();
 
@@ -29,6 +35,6 @@ routerAPI.get('/categories', getCategories);
 routerAPI.get('/products', getProducts);
 routerAPI.post('/categories', createCategory);
 routerAPI.post('/products', createProduct);
+routerAPI.get('/products/search', searchProduct);
 
 export default routerAPI;
-

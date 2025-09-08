@@ -3,6 +3,7 @@ import {
   getProductsService,
   createCategoryService,
   createProductService,
+  searchProductService,
 } from '../services/productService.js';
 
 const getCategories = async (req, res) => {
@@ -16,10 +17,33 @@ const getCategories = async (req, res) => {
 
 const getProducts = async (req, res) => {
   try {
-    const { category, page, limit } = req.query;
-    const data = await getProductsService({ category, page, limit });
+    const { 
+      category, 
+      page, 
+      limit, 
+      minPrice, 
+      maxPrice, 
+      hasDiscount, 
+      minViews,
+      sortBy,
+      sortOrder
+    } = req.query;
+    
+    const data = await getProductsService({ 
+      category, 
+      page, 
+      limit, 
+      minPrice, 
+      maxPrice, 
+      hasDiscount, 
+      minViews,
+      sortBy,
+      sortOrder
+    });
+    
     return res.status(200).json(data);
   } catch (error) {
+    console.error('Get products error:', error);
     return res.status(500).json({ message: 'Server error' });
   }
 };
@@ -46,4 +70,17 @@ const createProduct = async (req, res) => {
   }
 };
 
-export { createCategory, createProduct };
+const searchProduct = async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q) {
+      return res.status(400).json({ message: 'Thiếu query q' });
+    }
+    const products = await searchProductService(q);
+    return res.status(200).json({ data: products });
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export { createCategory, createProduct, searchProduct };

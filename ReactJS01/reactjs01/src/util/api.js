@@ -43,12 +43,28 @@ const getCategoriesApi = () => {
   return axios.get(URL_API);
 };
 
-const getProductsApi = ({ category, page, limit }) => {
+const getProductsApi = ({ 
+  category, 
+  page, 
+  limit, 
+  minPrice, 
+  maxPrice, 
+  hasDiscount, 
+  minViews,
+  sortBy,
+  sortOrder
+}) => {
   const URL_API = '/v1/api/products';
   const params = {};
   if (category) params.category = category;
   if (page) params.page = page;
   if (limit) params.limit = limit;
+  if (minPrice) params.minPrice = minPrice;
+  if (maxPrice) params.maxPrice = maxPrice;
+  if (hasDiscount) params.hasDiscount = hasDiscount;
+  if (minViews) params.minViews = minViews;
+  if (sortBy) params.sortBy = sortBy;
+  if (sortOrder) params.sortOrder = sortOrder;
   return axios.get(URL_API, { params });
 };
 
@@ -59,9 +75,16 @@ const createCategoryApi = ({ name, slug, description }) => {
   return axios.post(URL_API, { name, slug, description });
 };
 
-const createProductApi = ({ name, slug, price, thumbnail, category }) => {
+const createProductApi = ({ name, slug, price, thumbnail, category, discount, description, stock }) => {
   const URL_API = '/v1/api/products';
-  return axios.post(URL_API, { name, slug, price, thumbnail, category });
+  return axios.post(URL_API, { name, slug, price, thumbnail, category, discount, description, stock });
 };
 
-export { createCategoryApi, createProductApi };
+const searchProductApi = (q) => {
+  const URL_API = '/v1/api/products/search';
+  return axios.get(URL_API, {
+    params: { q },
+  });
+};
+
+export { createCategoryApi, createProductApi, searchProductApi };
