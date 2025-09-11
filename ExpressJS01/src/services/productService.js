@@ -8,23 +8,23 @@ const getCategoriesService = async () => {
   return categories;
 };
 
-const getProductsService = async ({ 
-  category, 
-  page = 1, 
-  limit = 12, 
-  minPrice, 
-  maxPrice, 
-  hasDiscount, 
+const getProductsService = async ({
+  category,
+  page = 1,
+  limit = 12,
+  minPrice,
+  maxPrice,
+  hasDiscount,
   minViews,
   sortBy = 'createdAt',
-  sortOrder = 'desc'
+  sortOrder = 'desc',
 }) => {
   const numericLimit = Math.min(Number(limit) || 12, 60);
   const numericPage = Math.max(Number(page) || 1, 1);
   const skip = (numericPage - 1) * numericLimit;
 
   const filter = {};
-  
+
   // Lọc theo danh mục
   if (category) {
     const cat = await Category.findOne({

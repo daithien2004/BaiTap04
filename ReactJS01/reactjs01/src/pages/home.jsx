@@ -1,5 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
-import { Select, Card, Row, Col, Spin, Empty, Input, Button, Slider, Checkbox, Collapse } from 'antd';
+import {
+  Select,
+  Card,
+  Row,
+  Col,
+  Spin,
+  Empty,
+  Input,
+  Button,
+  Slider,
+  Checkbox,
+  Collapse,
+} from 'antd';
 import {
   getCategoriesApi,
   getProductsApi,
@@ -19,15 +31,15 @@ const HomePage = () => {
   const fetchingRef = useRef(false);
   const fetchedPagesRef = useRef(new Set());
   const [query, setQuery] = useState('');
-  
+
   // Filter states
   const [filters, setFilters] = useState({
     minPrice: 0,
-    maxPrice: 10000000,
+    maxPrice: null,
     hasDiscount: false,
     minViews: 0,
     sortBy: 'createdAt',
-    sortOrder: 'desc'
+    sortOrder: 'desc',
   });
 
   useEffect(() => {
@@ -59,7 +71,7 @@ const HomePage = () => {
           category: selectedCategory,
           page,
           limit: PAGE_SIZE,
-          ...filters
+          ...filters,
         });
         setProducts((prev) => [...prev, ...(res?.items || [])]);
         setHasMore(!!res?.hasMore);
@@ -98,9 +110,9 @@ const HomePage = () => {
   };
 
   const handleFilterChange = (key, value) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }));
   };
 
@@ -111,7 +123,7 @@ const HomePage = () => {
       hasDiscount: false,
       minViews: 0,
       sortBy: 'createdAt',
-      sortOrder: 'desc'
+      sortOrder: 'desc',
     });
   };
 
@@ -140,7 +152,8 @@ const HomePage = () => {
         <Button onClick={resetFilters}>Reset Filters</Button>
       </div>
 
-      <Collapse style={{ marginBottom: 16 }}
+      <Collapse
+        style={{ marginBottom: 16 }}
         items={[
           {
             key: '1',
@@ -162,12 +175,13 @@ const HomePage = () => {
                           handleFilterChange('maxPrice', value[1]);
                         }}
                         tooltip={{
-                          formatter: (value) => `${value?.toLocaleString('vi-VN')} VNĐ`
+                          formatter: (value) =>
+                            `${value?.toLocaleString('vi-VN')} VNĐ`,
                         }}
                       />
                     </div>
                   </Col>
-                  
+
                   <Col span={8}>
                     <div>
                       <label>Lượt xem tối thiểu</label>
@@ -175,42 +189,50 @@ const HomePage = () => {
                         type="number"
                         placeholder="Nhập số lượt xem"
                         value={filters.minViews}
-                        onChange={(e) => handleFilterChange('minViews', e.target.value)}
+                        onChange={(e) =>
+                          handleFilterChange('minViews', e.target.value)
+                        }
                       />
                     </div>
                   </Col>
-                  
+
                   <Col span={8}>
                     <div>
                       <label>Sắp xếp theo</label>
                       <Select
                         style={{ width: '100%', marginBottom: 8 }}
                         value={filters.sortBy}
-                        onChange={(value) => handleFilterChange('sortBy', value)}
+                        onChange={(value) =>
+                          handleFilterChange('sortBy', value)
+                        }
                         options={[
                           { value: 'createdAt', label: 'Ngày tạo' },
                           { value: 'price', label: 'Giá' },
                           { value: 'views', label: 'Lượt xem' },
-                          { value: 'discount', label: 'Khuyến mãi' }
+                          { value: 'discount', label: 'Khuyến mãi' },
                         ]}
                       />
                       <Select
                         style={{ width: '100%' }}
                         value={filters.sortOrder}
-                        onChange={(value) => handleFilterChange('sortOrder', value)}
+                        onChange={(value) =>
+                          handleFilterChange('sortOrder', value)
+                        }
                         options={[
                           { value: 'desc', label: 'Giảm dần' },
-                          { value: 'asc', label: 'Tăng dần' }
+                          { value: 'asc', label: 'Tăng dần' },
                         ]}
                       />
                     </div>
                   </Col>
                 </Row>
-                
+
                 <div style={{ marginTop: 16 }}>
                   <Checkbox
                     checked={filters.hasDiscount}
-                    onChange={(e) => handleFilterChange('hasDiscount', e.target.checked)}
+                    onChange={(e) =>
+                      handleFilterChange('hasDiscount', e.target.checked)
+                    }
                   >
                     Chỉ hiển thị sản phẩm có khuyến mãi
                   </Checkbox>
@@ -247,13 +269,21 @@ const HomePage = () => {
                       <div style={{ marginBottom: 4 }}>
                         {p.discount > 0 ? (
                           <div>
-                            <span style={{ textDecoration: 'line-through', color: '#999', marginRight: 8 }}>
+                            <span
+                              style={{
+                                textDecoration: 'line-through',
+                                color: '#999',
+                                marginRight: 8,
+                              }}
+                            >
                               {new Intl.NumberFormat('vi-VN', {
                                 style: 'currency',
                                 currency: 'VND',
                               }).format(p.price || 0)}
                             </span>
-                            <span style={{ color: '#ff4d4f', fontWeight: 'bold' }}>
+                            <span
+                              style={{ color: '#ff4d4f', fontWeight: 'bold' }}
+                            >
                               {new Intl.NumberFormat('vi-VN', {
                                 style: 'currency',
                                 currency: 'VND',

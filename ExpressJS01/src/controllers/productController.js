@@ -17,30 +17,32 @@ const getCategories = async (req, res) => {
 
 const getProducts = async (req, res) => {
   try {
-    const { 
-      category, 
-      page, 
-      limit, 
-      minPrice, 
-      maxPrice, 
-      hasDiscount, 
+    const {
+      category,
+      page,
+      limit,
+      minPrice,
+      maxPrice,
+      hasDiscount,
       minViews,
       sortBy,
-      sortOrder
+      sortOrder,
     } = req.query;
-    
-    const data = await getProductsService({ 
-      category, 
-      page, 
-      limit, 
-      minPrice, 
-      maxPrice, 
-      hasDiscount, 
+
+    console.log(req.query);
+
+    const data = await getProductsService({
+      category,
+      page,
+      limit,
+      minPrice,
+      maxPrice,
+      hasDiscount,
       minViews,
       sortBy,
-      sortOrder
+      sortOrder,
     });
-    
+
     return res.status(200).json(data);
   } catch (error) {
     console.error('Get products error:', error);
