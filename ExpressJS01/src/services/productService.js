@@ -142,6 +142,12 @@ const createProductService = async ({
       name: created.name,
       price: created.price,
       categoryId: created.categoryId,
+      slug: created.slug,
+      description: created.description,
+      thumbnail: created.thumbnail,
+      discount: created.discount,
+      stock: created.stock,
+      views: created.views,
     },
   });
 
