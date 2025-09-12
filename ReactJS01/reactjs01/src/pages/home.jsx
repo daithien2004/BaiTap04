@@ -103,8 +103,6 @@ const HomePage = () => {
   }, [hasMore, loading]);
 
   const handleSearch = async () => {
-    const q = query;
-    if (!query.trim()) return;
     const res = await searchProductApi(query);
     setProducts(res.data);
   };

@@ -75,8 +75,15 @@ const createProduct = async (req, res) => {
 const searchProduct = async (req, res) => {
   try {
     const { q } = req.query;
-    if (!q) {
-      return res.status(400).json({ message: 'Thiếu query q' });
+    if (!q || q.trim() === '') {
+      // Return full product list (no pagination) when query is empty
+      const all = await getProductsService({
+        page: 1,
+        limit: 1000,
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
+      });
+      return res.status(200).json({ data: all.items });
     }
     const products = await searchProductService(q);
     return res.status(200).json({ data: products });
