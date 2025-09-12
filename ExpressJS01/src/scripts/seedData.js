@@ -1,10 +1,18 @@
+// seed.js
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 import Category from '../models/category.js';
 import Product from '../models/product.js';
-import dotenv from 'dotenv';
+import { Client } from '@elastic/elasticsearch';
 
 dotenv.config({ path: '../.env' });
 
+// --- Elasticsearch client ---
+const esClient = new Client({
+  node: process.env.ELASTICSEARCH_URL || 'http://localhost:9200',
+});
+
+// --- Sample data ---
 const categories = [
   { name: 'Điện thoại', slug: 'dien-thoai', description: 'Điện thoại di động' },
   { name: 'Laptop', slug: 'laptop', description: 'Máy tính xách tay' },
@@ -255,22 +263,26 @@ const products = [
   },
 ];
 
+
+// --- Seed function ---
 const seedData = async () => {
   try {
-    // Connect to MongoDB
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/fullstack02');
-    console.log('Connected to MongoDB');
+    // 1. Kết nối MongoDB
+    await mongoose.connect(
+      process.env.MONGODB_URI || 'mongodb://localhost:27017/fullstack02'
+    );
+    console.log('✅ Connected to MongoDB');
 
-    // Clear existing data
+    // 2. Xóa dữ liệu cũ Mongo
     await Category.deleteMany({});
     await Product.deleteMany({});
-    console.log('Cleared existing data');
+    console.log('🗑 Cleared existing Mongo data');
 
-    // Create categories
+    // 3. Tạo categories
     const createdCategories = await Category.insertMany(categories);
-    console.log('Created categories:', createdCategories.length);
+    console.log(`📂 Created categories: ${createdCategories.length}`);
 
-    // Create products with category references
+    // 4. Tạo products với categoryId
     const productsWithCategories = products.map((product, index) => {
       const categoryIndex = index % createdCategories.length;
       return {
@@ -280,15 +292,60 @@ const seedData = async () => {
     });
 
     const createdProducts = await Product.insertMany(productsWithCategories);
-    console.log('Created products:', createdProducts.length);
+    console.log(`📦 Created products: ${createdProducts.length}`);
 
-    console.log('✅ Seed data completed successfully!');
-  } catch (error) {
-    console.error('❌ Error seeding data:', error);
+    // 5. Kiểm tra và tạo index Elasticsearch nếu chưa có
+    const indexExists = await esClient.indices.exists({ index: 'products' });
+    if (!indexExists) {
+      await esClient.indices.create({
+        index: 'products',
+        body: {
+          mappings: {
+            properties: {
+              name: { type: 'text' },
+              slug: { type: 'keyword' },
+              description: { type: 'text' },
+              price: { type: 'float' },
+              discount: { type: 'integer' },
+              stock: { type: 'integer' },
+              views: { type: 'integer' },
+              thumbnail: { type: 'keyword' },
+              categoryId: { type: 'keyword' },
+            },
+          },
+        },
+      });
+      console.log('🗂 Elasticsearch index "products" created');
+    } else {
+      console.log('🗂 Elasticsearch index "products" already exists');
+    }
+
+    // 6. Index products sang Elasticsearch
+    for (const product of createdProducts) {
+      await esClient.index({
+        index: 'products',
+        id: product._id.toString(),
+        body: {
+          name: product.name,
+          slug: product.slug,
+          price: product.price,
+          description: product.description,
+          thumbnail: product.thumbnail,
+          discount: product.discount,
+          stock: product.stock,
+          views: product.views,
+          categoryId: product.categoryId.toString(),
+        },
+      });
+    }
+    console.log('✅ Indexed products into Elasticsearch');
+  } catch (err) {
+    console.error('❌ Error seeding data:', err);
   } finally {
     await mongoose.disconnect();
-    console.log('Disconnected from MongoDB');
+    console.log('🔌 Disconnected from MongoDB');
   }
 };
 
+// --- Run seed ---
 seedData();
