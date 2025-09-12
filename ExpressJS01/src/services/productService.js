@@ -152,17 +152,19 @@ const createProductService = async ({
 const searchProductService = async (query) => {
   const result = await esClient.search({
     index: 'products',
-    query: {
-      match: {
-        name: {
-          query,
-          fuzziness: 'AUTO', // bật fuzzy search auto
+    body: {
+      query: {
+        match: {
+          name: {
+            query,
+            fuzziness: 'AUTO', // bật fuzzy search tự động
+          },
         },
       },
     },
   });
 
-  // chỉ trả về danh sách product (nguồn gốc dữ liệu)
+  // Trả về danh sách product
   return result.hits.hits.map((hit) => ({ id: hit._id, ...hit._source }));
 };
 
