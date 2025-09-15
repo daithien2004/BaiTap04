@@ -4,7 +4,19 @@ import {
   createCategoryService,
   createProductService,
   searchProductService,
+  getProductDetailsService,
 } from '../services/productService.js';
+
+export const getProductDetails = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const product = await getProductDetailsService(productId);
+
+    return res.json({ EC: 0, EM: 'OK', data: product });
+  } catch (error) {
+    return res.status(500).json({ EC: -1, EM: error.message });
+  }
+};
 
 const getCategories = async (req, res) => {
   try {

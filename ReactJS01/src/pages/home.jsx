@@ -17,6 +17,7 @@ import {
   getProductsApi,
   searchProductApi,
 } from '../util/api';
+import ProductCard from './product-card';
 
 const PAGE_SIZE = 12;
 
@@ -285,66 +286,7 @@ const HomePage = () => {
         <Row gutter={[16, 16]}>
           {products.map((p) => (
             <Col key={p._id} xs={12} sm={8} md={6} lg={6} xl={4}>
-              <Card
-                hoverable
-                cover={
-                  <img
-                    alt={p.name}
-                    src={
-                      p.thumbnail ||
-                      'https://via.placeholder.com/300x200?text=No+Image'
-                    }
-                    style={{ height: 160, objectFit: 'cover' }}
-                  />
-                }
-              >
-                <Card.Meta
-                  title={p.name}
-                  description={
-                    <div>
-                      <div style={{ marginBottom: 4 }}>
-                        {p.discount > 0 ? (
-                          <div>
-                            <span
-                              style={{
-                                textDecoration: 'line-through',
-                                color: '#999',
-                                marginRight: 8,
-                              }}
-                            >
-                              {new Intl.NumberFormat('vi-VN', {
-                                style: 'currency',
-                                currency: 'VND',
-                              }).format(p.price || 0)}
-                            </span>
-                            <span
-                              style={{ color: '#ff4d4f', fontWeight: 'bold' }}
-                            >
-                              {new Intl.NumberFormat('vi-VN', {
-                                style: 'currency',
-                                currency: 'VND',
-                              }).format((p.price * (100 - p.discount)) / 100)}
-                            </span>
-                            <span style={{ color: '#ff4d4f', marginLeft: 4 }}>
-                              -{p.discount}%
-                            </span>
-                          </div>
-                        ) : (
-                          <span>
-                            {new Intl.NumberFormat('vi-VN', {
-                              style: 'currency',
-                              currency: 'VND',
-                            }).format(p.price || 0)}
-                          </span>
-                        )}
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#666' }}>
-                        👁️ {p.views || 0} lượt xem
-                      </div>
-                    </div>
-                  }
-                />
-              </Card>
+              <ProductCard product={p} />
             </Col>
           ))}
         </Row>

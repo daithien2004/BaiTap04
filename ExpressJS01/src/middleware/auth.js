@@ -17,7 +17,6 @@ const auth = (req, res, next) => {
           name: decoded.name,
           createdBy: 'hoidanit',
         };
-        console.log('>>> check token: ', decoded);
         next();
       } catch (error) {
         return res.status(401).json({

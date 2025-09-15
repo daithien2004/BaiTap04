@@ -15,7 +15,17 @@ import {
   createCategory,
   createProduct,
   searchProducts,
+  getProductDetails,
 } from '../controllers/productController.js';
+import {
+  addFavorite,
+  removeFavorite,
+  listFavorites,
+  addRecentView,
+  listRecentViews,
+  getSimilarProducts,
+  getProductStats,
+} from '../controllers/productExtraController.js';
 
 const routerAPI = express.Router();
 
@@ -35,6 +45,22 @@ routerAPI.get('/categories', getCategories);
 routerAPI.get('/products', getProducts);
 routerAPI.post('/categories', createCategory);
 routerAPI.post('/products', createProduct);
+routerAPI.post('/products/:productId', getProductDetails);
 routerAPI.get('/products/search', searchProducts);
+
+// favorite
+routerAPI.post('/favorites/:productId', auth, addFavorite);
+routerAPI.delete('/favorites/:productId', auth, removeFavorite);
+routerAPI.get('/favorites', auth, listFavorites);
+
+// recent views
+routerAPI.post('/products/:productId/view', auth, addRecentView);
+routerAPI.get('/recent-views', auth, listRecentViews);
+
+// similar
+routerAPI.get('/products/:id/similar', getSimilarProducts);
+
+// stats
+routerAPI.get('/products/:id/stats', getProductStats);
 
 export default routerAPI;

@@ -8,6 +8,17 @@ const getCategoriesService = async () => {
   return categories;
 };
 
+const getProductDetailsService = async (id) => {
+  const product = await Product.findById(id);
+  if (!product) return null;
+
+  // tăng lượt xem
+  product.views = (product.views || 0) + 1;
+  await product.save();
+
+  return product;
+};
+
 const getProductsService = async ({
   category,
   page = 1,
@@ -192,4 +203,9 @@ const searchProductService = async (query, page = 1, limit = 12) => {
   };
 };
 
-export { createCategoryService, createProductService, searchProductService };
+export {
+  createCategoryService,
+  createProductService,
+  searchProductService,
+  getProductDetailsService,
+};

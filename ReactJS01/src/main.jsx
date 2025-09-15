@@ -12,6 +12,8 @@ import ForgotPasswordPage from './pages/forgot.jsx';
 import ResetPasswordPage from './pages/reset.jsx';
 import AddProductPage from './pages/add-product.jsx';
 import AddCategoryPage from './pages/add-category.jsx';
+import Favorites from './pages/favorites.jsx';
+import ProductDetailPage from './pages/product-detail.jsx';
 
 const router = createBrowserRouter([
   {
@@ -33,6 +35,14 @@ const router = createBrowserRouter([
       {
         path: 'add-category',
         element: <AddCategoryPage />,
+      },
+      {
+        path: 'favorite-products',
+        element: <Favorites />,
+      },
+      {
+        path: 'products/:productId', // route chi tiết sản phẩm
+        element: <ProductDetailPage />,
       },
     ],
   },

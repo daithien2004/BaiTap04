@@ -107,4 +107,48 @@ const searchProductApi = (q, page = 1, limit = PAGE_SIZE) => {
   });
 };
 
-export { createCategoryApi, createProductApi, searchProductApi };
+const addFavoriteApi = (productId) => {
+  return axios.post(`/v1/api/favorites/${productId}`);
+};
+
+const removeFavoriteApi = (productId) => {
+  return axios.delete(`/v1/api/favorites/${productId}`);
+};
+
+const getFavoritesApi = (page = 1, limit = 20) => {
+  return axios.get('/v1/api/favorites', { params: { page, limit } });
+};
+
+const postProductViewApi = (productId) => {
+  return axios.post(`/v1/api/products/${productId}/view`);
+};
+
+const getRecentViewsApi = (limit = 20) => {
+  return axios.get('/v1/api/recent-views', { params: { limit } });
+};
+
+const getSimilarProductsApi = (productId) => {
+  return axios.get(`/v1/api/products/${productId}/similar`);
+};
+
+const getProductStatsApi = (productId) => {
+  return axios.get(`/v1/api/products/${productId}/stats`);
+};
+
+const getProductByIdApi = (productId) => {
+  return axios.post(`/v1/api/products/${productId}`);
+};
+
+export {
+  createCategoryApi,
+  createProductApi,
+  searchProductApi,
+  addFavoriteApi,
+  removeFavoriteApi,
+  getFavoritesApi,
+  postProductViewApi,
+  getRecentViewsApi,
+  getSimilarProductsApi,
+  getProductStatsApi,
+  getProductByIdApi,
+};
