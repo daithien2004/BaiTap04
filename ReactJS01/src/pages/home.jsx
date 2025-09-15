@@ -21,6 +21,7 @@ import {
 const PAGE_SIZE = 12;
 
 const HomePage = () => {
+  const [mode, setMode] = useState('normal'); // 'normal' | 'search'
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(undefined);
   const [products, setProducts] = useState([]);
@@ -51,38 +52,55 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    // reset when category or filters change
+    // reset khi category, filters hoặc query thay đổi
     setProducts([]);
     setPage(1);
     setHasMore(true);
     fetchedPagesRef.current.clear();
-  }, [selectedCategory, filters]);
+  }, [selectedCategory, filters, query, mode]);
 
   useEffect(() => {
     const fetchProducts = async () => {
       if (!hasMore) return;
       if (fetchingRef.current) return;
-      if (fetchedPagesRef.current.has(`${selectedCategory || ''}:${page}`))
+      if (
+        fetchedPagesRef.current.has(
+          `${mode}:${selectedCategory || ''}:${query}:${page}`
+        )
+      )
         return;
+
       fetchingRef.current = true;
       setLoading(true);
       try {
-        const res = await getProductsApi({
-          category: selectedCategory,
-          page,
-          limit: PAGE_SIZE,
-          ...filters,
-        });
-        setProducts((prev) => [...prev, ...(res?.items || [])]);
+        let res;
+        if (mode === 'normal') {
+          res = await getProductsApi({
+            category: selectedCategory,
+            page,
+            limit: PAGE_SIZE,
+            ...filters,
+          });
+        } else {
+          res = await searchProductApi(query, page, PAGE_SIZE);
+        }
+
+        setProducts((prev) =>
+          page === 1 ? res?.items || [] : [...prev, ...(res?.items || [])]
+        );
         setHasMore(!!res?.hasMore);
-        fetchedPagesRef.current.add(`${selectedCategory || ''}:${page}`);
+        fetchedPagesRef.current.add(
+          `${mode}:${selectedCategory || ''}:${query}:${page}`
+        );
       } finally {
         fetchingRef.current = false;
         setLoading(false);
       }
     };
+
+    // 👉 gọi ngay khi page = 1 (sau khi reset filters/search/category)
     fetchProducts();
-  }, [page, selectedCategory, hasMore]);
+  }, [page, selectedCategory, query, mode, filters, hasMore]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -102,9 +120,12 @@ const HomePage = () => {
     return () => observer.disconnect();
   }, [hasMore, loading]);
 
-  const handleSearch = async () => {
-    const res = await searchProductApi(query);
-    setProducts(res.data);
+  const handleSearch = () => {
+    if (!query || query.trim() === '') {
+      setMode('normal');
+    } else {
+      setMode('search');
+    }
   };
 
   const handleFilterChange = (key, value) => {
@@ -114,15 +135,23 @@ const HomePage = () => {
     }));
   };
 
+  // 👉 Hàm reset filter
   const resetFilters = () => {
+    setSelectedCategory(undefined);
     setFilters({
       minPrice: 0,
-      maxPrice: 10000000,
+      maxPrice: null,
       hasDiscount: false,
       minViews: 0,
       sortBy: 'createdAt',
       sortOrder: 'desc',
     });
+    setProducts([]);
+    setPage(1);
+    setHasMore(true);
+    fetchedPagesRef.current.clear();
+    setMode('normal');
+    setQuery('');
   };
 
   return (
@@ -133,9 +162,16 @@ const HomePage = () => {
           type="text"
           placeholder="Tìm sản phẩm"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            setQuery(value);
+            setMode(value.trim() === '' ? 'normal' : 'search'); // ✅ auto switch mode
+          }}
         />
-        <Button onClick={handleSearch}>Search</Button>
+        <Button onClick={handleSearch} style={{ marginRight: 8 }}>
+          Search
+        </Button>
+        <Button onClick={resetFilters}>Reset Filters</Button>
       </div>
 
       <div style={{ marginBottom: 16 }}>
@@ -144,10 +180,12 @@ const HomePage = () => {
           placeholder="Chọn danh mục"
           style={{ width: 300, marginRight: 16 }}
           value={selectedCategory}
-          onChange={setSelectedCategory}
+          onChange={(value) => {
+            setSelectedCategory(value);
+            setMode('normal'); // reset về normal khi đổi category
+          }}
           options={categories.map((c) => ({ value: c.slug, label: c.name }))}
         />
-        <Button onClick={resetFilters}>Reset Filters</Button>
       </div>
 
       <Collapse
@@ -165,7 +203,7 @@ const HomePage = () => {
                       <Slider
                         range
                         min={0}
-                        max={10000000}
+                        max={100000000}
                         step={100000}
                         value={[filters.minPrice, filters.maxPrice]}
                         onChange={(value) => {
@@ -321,4 +359,5 @@ const HomePage = () => {
     </div>
   );
 };
+
 export default HomePage;

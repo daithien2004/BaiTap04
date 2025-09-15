@@ -15,6 +15,7 @@ const getCategories = async (req, res) => {
   }
 };
 
+// Get products (normal listing with filter + pagination)
 const getProducts = async (req, res) => {
   try {
     const {
@@ -28,8 +29,6 @@ const getProducts = async (req, res) => {
       sortBy,
       sortOrder,
     } = req.query;
-
-    console.log(req.query);
 
     const data = await getProductsService({
       category,
@@ -46,6 +45,25 @@ const getProducts = async (req, res) => {
     return res.status(200).json(data);
   } catch (error) {
     console.error('Get products error:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Search products (Elasticsearch + pagination)
+const searchProducts = async (req, res) => {
+  try {
+    const { q, page, limit } = req.query;
+
+    if (!q || q.trim() === '') {
+      // fallback về getProducts nếu không có query
+      const data = await getProductsService({ page, limit });
+      return res.status(200).json(data);
+    }
+
+    const data = await searchProductService(q, page, limit);
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error('Search products error:', error);
     return res.status(500).json({ message: 'Server error' });
   }
 };
@@ -72,24 +90,4 @@ const createProduct = async (req, res) => {
   }
 };
 
-const searchProduct = async (req, res) => {
-  try {
-    const { q } = req.query;
-    if (!q || q.trim() === '') {
-      // Return full product list (no pagination) when query is empty
-      const all = await getProductsService({
-        page: 1,
-        limit: 1000,
-        sortBy: 'createdAt',
-        sortOrder: 'desc',
-      });
-      return res.status(200).json({ data: all.items });
-    }
-    const products = await searchProductService(q);
-    return res.status(200).json({ data: products });
-  } catch (error) {
-    return res.status(500).json({ message: 'Server error' });
-  }
-};
-
-export { createCategory, createProduct, searchProduct };
+export { createCategory, createProduct, searchProducts };

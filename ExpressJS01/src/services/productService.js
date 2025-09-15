@@ -155,23 +155,41 @@ const createProductService = async ({
 };
 
 // SEARCH (Elasticsearch)
-const searchProductService = async (query) => {
+const searchProductService = async (query, page = 1, limit = 12) => {
+  const numericLimit = Math.min(Number(limit) || 12, 60);
+  const numericPage = Math.max(Number(page) || 1, 1);
+  const from = (numericPage - 1) * numericLimit;
+
   const result = await esClient.search({
     index: 'products',
+    from,
+    size: numericLimit,
     body: {
       query: {
         match: {
           name: {
             query,
-            fuzziness: 'AUTO', // bật fuzzy search tự động
+            fuzziness: 'AUTO', // fuzzy search
           },
         },
       },
     },
   });
 
-  // Trả về danh sách product
-  return result.hits.hits.map((hit) => ({ id: hit._id, ...hit._source }));
+  const items = result.hits.hits.map((hit) => ({
+    id: hit._id,
+    ...hit._source,
+  }));
+
+  const total = result.hits.total.value;
+
+  return {
+    items,
+    total,
+    page: numericPage,
+    limit: numericLimit,
+    hasMore: from + items.length < total,
+  };
 };
 
 export { createCategoryService, createProductService, searchProductService };

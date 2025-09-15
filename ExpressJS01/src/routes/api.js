@@ -14,7 +14,7 @@ import {
   getProducts,
   createCategory,
   createProduct,
-  searchProduct,
+  searchProducts,
 } from '../controllers/productController.js';
 
 const routerAPI = express.Router();
@@ -35,6 +35,6 @@ routerAPI.get('/categories', getCategories);
 routerAPI.get('/products', getProducts);
 routerAPI.post('/categories', createCategory);
 routerAPI.post('/products', createProduct);
-routerAPI.get('/products/search', searchProduct);
+routerAPI.get('/products/search', searchProducts);
 
 export default routerAPI;
