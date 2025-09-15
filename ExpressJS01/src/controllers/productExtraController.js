@@ -47,7 +47,7 @@ const listFavorites = async (req, res) => {
 // Recent views
 const addRecentView = async (req, res) => {
   try {
-    const userId = req.user?._id;
+    const userId = req.user?._id; // auth middleware gán
     const { productId } = req.params;
     const r = await addRecentViewService(userId, productId);
     return res.status(200).json(r);

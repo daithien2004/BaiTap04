@@ -34,6 +34,10 @@ const Header = () => {
             key: 'add-product',
           },
           {
+            label: <Link to="/recent-products">Sản phẩm gần đây</Link>,
+            key: 'recent-products',
+          },
+          {
             label: <Link to="/favorite-products">Sản phẩm yêu thích</Link>,
             key: 'favorite-products',
           },

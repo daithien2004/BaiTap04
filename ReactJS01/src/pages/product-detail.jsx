@@ -43,19 +43,21 @@ const ProductDetail = () => {
 
   useEffect(() => {
     if (!product) return;
+
     // mark viewed
     postProductViewApi(product._id).catch(() => {});
+
     // load similar
     getSimilarProductsApi(product._id)
-      .then((r) => {
-        if (r?.data?.EC === 0) setSimilar(r.data.data || r.data);
-        else if (r?.data?.data) setSimilar(r.data.data);
+      .then((res) => {
+        if (res?.EC === 0) setSimilar(res.data || []);
       })
       .catch(() => {});
+
     // load stats
     getProductStatsApi(product._id)
-      .then((r) => {
-        if (r?.data?.EC === 0) setStats(r.data.data || r.data);
+      .then((res) => {
+        if (res?.EC === 0) setStats(res.data || {});
       })
       .catch(() => {});
   }, [product]);

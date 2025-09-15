@@ -46,6 +46,7 @@ const loginService = async (email, password) => {
         };
       } else {
         const payload = {
+          _id: user._id,
           email: user.email,
           name: user.name,
         };

@@ -54,29 +54,36 @@ export const listFavoritesService = async (
   };
 };
 
-// Recent views
 export const addRecentViewService = async (userId, productId) => {
-  if (!mongoose.Types.ObjectId.isValid(productId))
+  if (!mongoose.Types.ObjectId.isValid(productId)) {
     return { EC: 1, EM: 'Invalid product id' };
-  // nếu userId null (guest) -> skip DB, có thể store ở client; ở đây xử lý khi có user
-  if (!userId) return { EC: 2, EM: 'No user' };
+  }
 
-  // Upsert with updated viewedAt
+  // Guest -> không lưu DB
+  if (!userId) {
+    return { EC: 2, EM: 'No user logged in' };
+  }
+
+  // Upsert: nếu đã có thì update thời gian, nếu chưa có thì tạo mới
   await RecentView.findOneAndUpdate(
     { userId, productId },
     { $set: { viewedAt: new Date() } },
-    { upsert: true, new: true }
+    { upsert: true }
   );
-  // giới hạn size: xóa những view cũ nếu > 50
+
+  // Giới hạn chỉ lưu tối đa 50 sản phẩm đã xem
   const count = await RecentView.countDocuments({ userId });
   if (count > 50) {
     const toRemove = await RecentView.find({ userId })
-      .sort({ viewedAt: -1 })
-      .skip(50)
+      .sort({ viewedAt: -1 }) // mới nhất trước
+      .skip(50) // bỏ qua 50 cái mới nhất
       .select('_id');
-    const ids = toRemove.map((t) => t._id);
-    if (ids.length) await RecentView.deleteMany({ _id: { $in: ids } });
+
+    if (toRemove.length) {
+      await RecentView.deleteMany({ _id: { $in: toRemove.map((t) => t._id) } });
+    }
   }
+
   return { EC: 0, EM: 'OK' };
 };
 
@@ -87,7 +94,7 @@ export const listRecentViewsService = async (userId, { limit = 20 } = {}) => {
     .limit(numericLimit)
     .populate('productId');
   const items = docs.map((d) => d.productId);
-  return { EC: 0, EM: 'OK', data: { items } };
+  return { EC: 0, EM: 'OK', data: items };
 };
 
 // Similar products (by category, fallback: price range)
@@ -123,26 +130,29 @@ export const getSimilarProductsService = async (
 export const getProductStatsService = async (productId) => {
   if (!mongoose.Types.ObjectId.isValid(productId))
     return { EC: 1, EM: 'Invalid product id' };
+
   // buyers: count distinct users who have ordered this product
   const buyersAgg = await Order.aggregate([
     { $unwind: '$items' },
-    { $match: { 'items.productId': mongoose.Types.ObjectId(productId) } },
+    { $match: { 'items.productId': new mongoose.Types.ObjectId(productId) } },
     { $group: { _id: '$userId' } },
     { $count: 'buyers' },
   ]);
   const buyers = buyersAgg[0]?.buyers || 0;
 
-  // total orders count containing product (optional)
+  // total orders count containing product
   const ordersCountAgg = await Order.aggregate([
     { $unwind: '$items' },
-    { $match: { 'items.productId': mongoose.Types.ObjectId(productId) } },
+    { $match: { 'items.productId': new mongoose.Types.ObjectId(productId) } },
     { $group: { _id: '$_id' } },
     { $count: 'orders' },
   ]);
   const orders = ordersCountAgg[0]?.orders || 0;
 
   // comments count
-  const comments = await Comment.countDocuments({ productId });
+  const comments = await Comment.countDocuments({
+    productId: new mongoose.Types.ObjectId(productId),
+  });
 
   return { EC: 0, EM: 'OK', data: { buyers, orders, comments } };
 };

@@ -3,7 +3,13 @@ dotenv.config();
 import jwt from 'jsonwebtoken';
 
 const auth = (req, res, next) => {
-  const white_lists = ['/', '/register', '/login', '/forgot-password', '/reset-password'];
+  const white_lists = [
+    '/',
+    '/register',
+    '/login',
+    '/forgot-password',
+    '/reset-password',
+  ];
   if (white_lists.find((item) => '/v1/api' + item === req.originalUrl)) {
     next();
   } else {
@@ -13,6 +19,7 @@ const auth = (req, res, next) => {
       try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = {
+          _id: decoded._id,
           email: decoded.email,
           name: decoded.name,
           createdBy: 'hoidanit',

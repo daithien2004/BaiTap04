@@ -14,6 +14,7 @@ import AddProductPage from './pages/add-product.jsx';
 import AddCategoryPage from './pages/add-category.jsx';
 import Favorites from './pages/favorites.jsx';
 import ProductDetailPage from './pages/product-detail.jsx';
+import RecentViews from './pages/recentViews.jsx';
 
 const router = createBrowserRouter([
   {
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
       {
         path: 'favorite-products',
         element: <Favorites />,
+      },
+      {
+        path: 'recent-products',
+        element: <RecentViews />,
       },
       {
         path: 'products/:productId', // route chi tiết sản phẩm
