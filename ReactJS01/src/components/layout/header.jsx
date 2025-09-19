@@ -3,20 +3,49 @@ import {
   UsergroupAddOutlined,
   HomeOutlined,
   SettingOutlined,
+  ShoppingCartOutlined,
 } from '@ant-design/icons';
-import { Menu } from 'antd';
+import { Badge, Menu } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/auth.context';
+import { useEffect } from 'react';
+import { getCartApi } from '../../util/api';
 
 const Header = () => {
   const navigate = useNavigate();
   const { auth, setAuth } = useContext(AuthContext);
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      getCartApi().then((res) => {
+        if (res?.EC === 0) {
+          const total = res.data.items.reduce(
+            (acc, item) => acc + item.quantity,
+            0
+          );
+          setCartCount(total);
+        }
+      });
+    }
+  }, [auth.isAuthenticated]);
 
   const items = [
     {
       label: <Link to="/">Home Page</Link>,
       key: 'home',
       icon: <HomeOutlined />,
+    },
+    {
+      label: (
+        <Link to="/cart">
+          <Badge count={cartCount} offset={[10, 0]}>
+            <ShoppingCartOutlined style={{ fontSize: 18 }} />
+            <span style={{ marginLeft: 6 }}>Giỏ hàng</span>
+          </Badge>
+        </Link>
+      ),
+      key: 'cart',
     },
     ...(auth.isAuthenticated
       ? [

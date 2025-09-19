@@ -26,6 +26,20 @@ import {
   getSimilarProducts,
   getProductStats,
 } from '../controllers/productExtraController.js';
+import {
+  addComment,
+  deleteComment,
+  getComments,
+  updateComment,
+} from '../controllers/commentController.js';
+import {
+  addToCart,
+  clearCart,
+  getCart,
+  removeCartItem,
+  updateCartItem,
+} from '../controllers/cartController.js';
+import { createOrder, getMyOrders } from '../controllers/orderController.js';
 
 const routerAPI = express.Router();
 
@@ -62,5 +76,26 @@ routerAPI.get('/products/:id/similar', getSimilarProducts);
 
 // stats
 routerAPI.get('/products/:id/stats', getProductStats);
+
+// comments
+routerAPI.get('/products/:productId/comments', auth, getComments);
+routerAPI.post('/products/:productId/comments', auth, addComment);
+routerAPI.put('/products/:productId/comments/:commentId', auth, updateComment);
+routerAPI.delete(
+  '/products/:productId/comments/:commentId',
+  auth,
+  deleteComment
+);
+
+// cart
+routerAPI.get('/cart', auth, getCart);
+routerAPI.post('/cart', auth, addToCart);
+routerAPI.put('/cart', auth, updateCartItem);
+routerAPI.delete('/cart/:productId', auth, removeCartItem);
+routerAPI.delete('/cart', auth, clearCart);
+
+// orders
+routerAPI.post('/orders', auth, createOrder);
+routerAPI.get('/orders', auth, getMyOrders);
 
 export default routerAPI;

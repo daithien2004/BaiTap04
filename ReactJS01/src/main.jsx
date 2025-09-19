@@ -14,7 +14,8 @@ import AddProductPage from './pages/add-product.jsx';
 import AddCategoryPage from './pages/add-category.jsx';
 import Favorites from './pages/favorites.jsx';
 import ProductDetailPage from './pages/product-detail.jsx';
-import RecentViews from './pages/recentViews.jsx';
+import RecentViews from './pages/recent-views.jsx';
+import CartPage from './pages/cart-page.jsx';
 
 const router = createBrowserRouter([
   {
@@ -48,6 +49,10 @@ const router = createBrowserRouter([
       {
         path: 'products/:productId', // route chi tiết sản phẩm
         element: <ProductDetailPage />,
+      },
+      {
+        path: 'cart', // route chi tiết sản phẩm
+        element: <CartPage />,
       },
     ],
   },

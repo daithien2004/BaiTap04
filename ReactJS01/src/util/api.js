@@ -139,6 +139,42 @@ const getProductByIdApi = (productId) => {
   return axios.post(`/v1/api/products/${productId}`);
 };
 
+const getCommentsApi = (productId) => {
+  return axios.get(`/v1/api/products/${productId}/comments`);
+};
+
+const addCommentApi = (productId, body) => {
+  return axios.post(`/v1/api/products/${productId}/comments`, body);
+};
+
+export const updateCommentApi = (productId, commentId, body) => {
+  return axios.put(`/v1/api/products/${productId}/comments/${commentId}`, body);
+};
+
+export const deleteCommentApi = (productId, commentId) => {
+  return axios.delete(`/v1/api/products/${productId}/comments/${commentId}`);
+};
+
+export const getCartApi = () => {
+  return axios.get(`/v1/api/cart`);
+};
+
+export const addToCartApi = (productId, quantity = 1) => {
+  return axios.post(`/v1/api/cart`, { productId, quantity });
+};
+
+export const updateToCartApi = (productId, quantity = 1) => {
+  return axios.put(`/v1/api/cart`, { productId, quantity });
+};
+
+export const removeFromCartApi = (productId) => {
+  return axios.delete(`/v1/api/cart/${productId}`);
+};
+
+export const createOrderApi = () => {
+  return axios.post('/v1/api/orders');
+};
+
 export {
   createCategoryApi,
   createProductApi,
@@ -151,4 +187,6 @@ export {
   getSimilarProductsApi,
   getProductStatsApi,
   getProductByIdApi,
+  getCommentsApi,
+  addCommentApi,
 };
